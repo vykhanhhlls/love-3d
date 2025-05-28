@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Floating Text & Hearts + Music</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Nhạc nền -->
+<audio id="bgm" autoplay loop>
+  <source src="https://zingmp3.vn/bai-hat/Hon-Ca-Yeu-Duc-Phuc/ZWB0DFWZ.html" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js"></script>
+
+<script>
+  document.body.addEventListener('click', () => {
+    const bgm = document.getElementById('bgm');
+    if (bgm.paused) bgm.play();
+  });
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.z = 50;
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const fontLoader = new THREE.FontLoader();
+  const textMeshes = [];
+  const heartMeshes = [];
+
+  const texts = [
+    "Always by my side",
+    "Cảm giác trong anh bây giờ có lẽ",
+    "1 Year Anniversary",
+    "Love u in every universe",
+    "Hơn cả yêu",
+    "20-11-2001",
+    "My heart is yours",
+    "Every moment with you matters",
+    "Forever & always",
+    "You're my universe",
+    "Anh yêu em 💖",
+    "La Quỳnh Phấn"
+  ];
+
+  fontLoader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    for (let i = 0; i < 100; i++) {
+      const message = texts[i % texts.length];
+      const textGeo = new THREE.TextGeometry(message, {
+        font: font,
+        size: 1.8,
+        height: 0.1,
+        curveSegments: 6,
+      });
+      const mesh = new THREE.Mesh(textGeo, material);
+
+      mesh.position.x = (Math.random() - 0.5) * 100;
+      mesh.position.y = Math.random() * 100;
+      mesh.position.z = (Math.random() - 0.5) * 100;
+      mesh.userData.velocity = 0.1 + Math.random() * 0.3;
+
+      scene.add(mesh);
+      textMeshes.push(mesh);
+    }
+  });
+
+  function createHeart() {
+    const geometry = new THREE.SphereGeometry(0.7, 12, 12);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff4d4d });
+    const heart = new THREE.Mesh(geometry, material);
+
+    heart.position.x = (Math.random() - 0.5) * 100;
+    heart.position.y = Math.random() * 100;
+    heart.position.z = (Math.random() - 0.5) * 100;
+    heart.userData.velocity = 0.1 + Math.random() * 0.3;
+
+    scene.add(heart);
+    heartMeshes.push(heart);
+  }
+
+  for (let i = 0; i < 30; i++) createHeart();
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    textMeshes.forEach(mesh => {
+      mesh.position.y -= mesh.userData.velocity;
+      if (mesh.position.y < -50) mesh.position.y = 80;
+    });
+
+    heartMeshes.forEach(heart => {
+      heart.position.y -= heart.userData.velocity;
+      if (heart.position.y < -50) heart.position.y = 80;
+    });
+
+    scene.rotation.y += 0.002;
+    scene.rotation.x += 0.001;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+</body>
+</html>
